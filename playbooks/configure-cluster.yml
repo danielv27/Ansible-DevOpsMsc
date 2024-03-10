@@ -101,7 +101,6 @@
 
 - hosts: master
   tasks:
-
     - ansible.builtin.debug:
         msg: "docker swarm init  | grep 'docker swarm join --token'"
 
@@ -122,7 +121,11 @@
         msg: "[Worker] {{ hostvars['join_cmd_holder']['cmd'] }}"
 
     - name: join
-      ADD YOUR SOLUTION HERE
+      become: yes
+      ansible.builtin.shell: 
+      
+        cmd: "{{ hostvars['join_cmd_holder']['cmd'] }}"
+      
 
 
 - hosts: master
