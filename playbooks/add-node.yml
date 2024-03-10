@@ -1,0 +1,37 @@
+---
+- hosts: master
+  tasks:
+    - name: Create EC2 instance
+      amazon.aws.ec2:
+        key_name: Macbook M1
+        instance_type: t2.micro 
+        image: ami-07d9b9ddc6cd8dd30
+        group: webserver
+        count: 1
+        assign_public_ip: yes
+      register: ec2
+
+    - name: Print the instance ID and IP
+      debug:
+        msg: "Instance ID is {{ ec2.instances[0].id }}, public IP is {{ ec2.instances[0].public_ip }}"
+
+    - name: Generate join cmd
+      command: "docker swarm join-token worker"
+      become: yes
+      register: join_cmd
+
+    - name: Add join cmd to dummy host
+      ansible.builtin.add_host:
+        name: "join_cmd_holder"
+        cmd: "{{ join_cmd.stdout }}"
+
+- hosts: worker
+  tasks:
+    - name: print join cmd
+      ansible.builtin.debug:
+        msg: "[Worker] {{ hostvars['join_cmd_holder']['cmd'] }}"
+
+    - name: join
+      become: yes
+      ansible.builtin.shell: "{{ hostvars['join_cmd_holder']['cmd'] }}"
+

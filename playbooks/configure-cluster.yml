@@ -122,10 +122,7 @@
 
     - name: join
       become: yes
-      ansible.builtin.shell: 
-      
-        cmd: "{{ hostvars['join_cmd_holder']['cmd'] }}"
-      
+      ansible.builtin.shell: "{{ hostvars['join_cmd_holder']['cmd'] }}"
 
 
 - hosts: master
